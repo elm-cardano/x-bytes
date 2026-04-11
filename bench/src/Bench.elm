@@ -2,12 +2,12 @@ module Bench exposing
     ( v1_fromStr_1024
     , v1_fromStr_256
     , v1_fromStr_32
-    , v2_fromStr_1024
-    , v2_fromStr_256
-    , v2_fromStr_32
     , v1_toStr_1024
     , v1_toStr_256
     , v1_toStr_32
+    , v2_fromStr_1024
+    , v2_fromStr_256
+    , v2_fromStr_32
     , v2_toStr_1024
     , v2_toStr_256
     , v2_toStr_32
@@ -21,12 +21,12 @@ V2 is a copy of V1 to start modifying and experimenting.
 
 ## toString benchmarks
 
-    elm-bench -f Bench.v1_toStr_1024 -f Bench.v2_toStr_1024 "()"
+    elm - bench -f Bench.v1_toStr_1024 -f Bench.v2_toStr_1024 "()"
 
 
 ## fromString benchmarks
 
-    elm-bench -f Bench.v1_fromStr_1024 -f Bench.v2_fromStr_1024 "()"
+    elm - bench -f Bench.v1_fromStr_1024 -f Bench.v2_fromStr_1024 "()"
 
 -}
 
