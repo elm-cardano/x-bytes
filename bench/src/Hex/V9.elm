@@ -1,4 +1,4 @@
-module Hex.V9 exposing (toString, fromString)
+module Hex.V9 exposing (fromString, toString)
 
 {-| V9: Bytes-as-intermediate to bypass all String/Char APIs.
 
@@ -9,6 +9,7 @@ No Array lookup, no String.append, no String.concat.
 fromString: Encode hex string to Bytes via Encode.string (fast kernel UTF-8).
 Then decode char codes as unsignedInt32 — pure integer arithmetic, zero
 String.slice/uncons/_Utils_chr overhead.
+
 -}
 
 import Bitwise

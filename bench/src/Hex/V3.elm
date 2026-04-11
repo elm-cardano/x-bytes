@@ -1,4 +1,4 @@
-module Hex.V3 exposing (toString, fromString)
+module Hex.V3 exposing (fromString, toString)
 
 {-| V3: Decodes 4 bytes at a time (unsignedInt32) for toString.
 Uses direct charCodeAt-style indexing for fromString.

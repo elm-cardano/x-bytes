@@ -1,42 +1,85 @@
 module Bench exposing
-    ( toStr_v1_32, toStr_v1_256, toStr_v1_1024
-    , toStr_v2_32, toStr_v2_256, toStr_v2_1024
-    , toStr_v3_32, toStr_v3_256, toStr_v3_1024
-    , toStr_v4_32, toStr_v4_256, toStr_v4_1024
-    , toStr_v5_32, toStr_v5_256, toStr_v5_1024
-    , fromStr_v1_32, fromStr_v1_256, fromStr_v1_1024
-    , fromStr_v2_32, fromStr_v2_256, fromStr_v2_1024
-    , fromStr_v3_32, fromStr_v3_256, fromStr_v3_1024
-    , fromStr_v4_32, fromStr_v4_256, fromStr_v4_1024
-    , fromStr_v5_32, fromStr_v5_256, fromStr_v5_1024
-    , toStr_v6_32, toStr_v6_256, toStr_v6_1024
-    , toStr_v7_32, toStr_v7_256, toStr_v7_1024
-    , fromStr_v6_32, fromStr_v6_256, fromStr_v6_1024
-    , fromStr_v7_32, fromStr_v7_256, fromStr_v7_1024
-    , toStr_v8_32, toStr_v8_256, toStr_v8_1024
-    , fromStr_v8_32, fromStr_v8_256, fromStr_v8_1024
-    , toStr_v9_32, toStr_v9_256, toStr_v9_1024
-    , fromStr_v9_32, fromStr_v9_256, fromStr_v9_1024
-    , toStr_v10_32, toStr_v10_256, toStr_v10_1024
+    ( fromStr_v1_1024
+    , fromStr_v1_256
+    , fromStr_v1_32
+    , fromStr_v2_1024
+    , fromStr_v2_256
+    , fromStr_v2_32
+    , fromStr_v3_1024
+    , fromStr_v3_256
+    , fromStr_v3_32
+    , fromStr_v4_1024
+    , fromStr_v4_256
+    , fromStr_v4_32
+    , fromStr_v5_1024
+    , fromStr_v5_256
+    , fromStr_v5_32
+    , fromStr_v6_1024
+    , fromStr_v6_256
+    , fromStr_v6_32
+    , fromStr_v7_1024
+    , fromStr_v7_256
+    , fromStr_v7_32
+    , fromStr_v8_1024
+    , fromStr_v8_256
+    , fromStr_v8_32
+    , fromStr_v9_1024
+    , fromStr_v9_256
+    , fromStr_v9_32
+    , toStr_v10_1024
+    , toStr_v10_256
+    , toStr_v10_32
+    , toStr_v1_1024
+    , toStr_v1_256
+    , toStr_v1_32
+    , toStr_v2_1024
+    , toStr_v2_256
+    , toStr_v2_32
+    , toStr_v3_1024
+    , toStr_v3_256
+    , toStr_v3_32
+    , toStr_v4_1024
+    , toStr_v4_256
+    , toStr_v4_32
+    , toStr_v5_1024
+    , toStr_v5_256
+    , toStr_v5_32
+    , toStr_v6_1024
+    , toStr_v6_256
+    , toStr_v6_32
+    , toStr_v7_1024
+    , toStr_v7_256
+    , toStr_v7_32
+    , toStr_v8_1024
+    , toStr_v8_256
+    , toStr_v8_32
+    , toStr_v9_1024
+    , toStr_v9_256
+    , toStr_v9_32
     )
 
 {-| Benchmark functions for Hex encoding/decoding.
 
+
 ## toString benchmarks
 
-    elm-bench -f Bench.toStr_v3_256 -f Bench.toStr_v4_256 -f Bench.toStr_v5_256 "()"
-    elm-bench -f Bench.toStr_v3_1024 -f Bench.toStr_v4_1024 -f Bench.toStr_v5_1024 "()"
+    elm - bench -f Bench.toStr_v3_256 -f Bench.toStr_v4_256 -f Bench.toStr_v5_256 "()"
+
+    elm - bench -f Bench.toStr_v3_1024 -f Bench.toStr_v4_1024 -f Bench.toStr_v5_1024 "()"
+
 
 ## fromString benchmarks
 
-    elm-bench -f Bench.fromStr_v1_256 -f Bench.fromStr_v4_256 -f Bench.fromStr_v5_256 "()"
-    elm-bench -f Bench.fromStr_v1_1024 -f Bench.fromStr_v4_1024 -f Bench.fromStr_v5_1024 "()"
+    elm - bench -f Bench.fromStr_v1_256 -f Bench.fromStr_v4_256 -f Bench.fromStr_v5_256 "()"
+
+    elm - bench -f Bench.fromStr_v1_1024 -f Bench.fromStr_v4_1024 -f Bench.fromStr_v5_1024 "()"
 
 -}
 
 import Bytes exposing (Bytes)
 import Bytes.Encode as Encode
 import Hex
+import Hex.V10
 import Hex.V2
 import Hex.V3
 import Hex.V4
@@ -45,7 +88,6 @@ import Hex.V6
 import Hex.V7
 import Hex.V8
 import Hex.V9
-import Hex.V10
 
 
 
@@ -199,7 +241,6 @@ toStr_v5_1024 () =
     Hex.V5.toString bytes1024
 
 
-
 {-| V6 toString on 32 bytes.
 -}
 toStr_v6_32 : () -> String
@@ -242,7 +283,6 @@ toStr_v7_1024 () =
     Hex.V7.toString bytes1024
 
 
-
 {-| V8 toString on 32 bytes.
 -}
 toStr_v8_32 : () -> String
@@ -262,7 +302,6 @@ toStr_v8_256 () =
 toStr_v8_1024 : () -> String
 toStr_v8_1024 () =
     Hex.V8.toString bytes1024
-
 
 
 {-| V9 toString on 32 bytes.

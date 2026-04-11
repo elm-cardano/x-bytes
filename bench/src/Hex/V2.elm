@@ -1,4 +1,4 @@
-module Hex.V2 exposing (toString, fromString)
+module Hex.V2 exposing (fromString, toString)
 
 {-| V2: Uses Decode.loop instead of andThen chain for toString.
 Uses String.foldl for fromString.

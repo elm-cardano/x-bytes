@@ -1,4 +1,4 @@
-module Hex.V5 exposing (toString, fromString)
+module Hex.V5 exposing (fromString, toString)
 
 {-| V5: Build a flat List Char for toString, then String.fromList once.
 Avoid Maybe per hex char in fromString using sentinel -1.
