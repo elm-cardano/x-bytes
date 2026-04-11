@@ -11,7 +11,7 @@ the toString baseline and V3 as the fromString baseline (closest to naive).
 
 | Function | Naive | Final | Speedup |
 |---|---|---|---|
-| `toString` | 58,300 ns (V2) | 18,649 ns (V23) | **3.1x faster** |
+| `toString` | 58,300 ns (V2) | 17,675 ns (V26) | **3.3x faster** |
 | `fromString` | 54,949 ns (V3) | 15,159 ns (V6) | **3.6x faster** |
 | `fromStringUnchecked` | 54,949 ns (V3) | ~12,900 ns (V19) | **4.3x faster** |
 
@@ -93,7 +93,7 @@ Halved Array.get calls (2 per word instead of 4) and reduced `++` from
 3 to 1. 10% faster but the ~566 KB table is unacceptable for source and
 compiled output size.
 
-### V23 — String accumulator (18,649 ns, 68% faster) FINAL
+### V23 — String accumulator (18,649 ns, 68% faster)
 
 Replaced `acc : List String` with `acc : String`. Grows the result
 directly via `++` instead of accumulating a list and doing
@@ -114,6 +114,40 @@ negated any benefit from smaller function bodies.
 One `Decode.unsignedInt32 BE` per iteration with a trivially simple loop
 body. 256 iterations vs ~53 for map5. Confirms that `Decode.loop`
 per-iteration overhead is significant — map5 batching is essential.
+
+### V26 — Int case switch table (17,675 ns, 70% faster) FINAL
+
+Replaced the `Array.get byte hexTable` lookup (256-entry `Array String`)
+with a 256-branch `case byte of` expression on `Int`. Elm compiles
+integer `case` to a JS `switch` statement, which V8 optimizes to a
+jump table — O(1) with zero allocation. The previous `Array.get`
+approach required 2 RRB tree node lookups (depth-2 for 256 elements)
+plus a `Just` wrapper allocation per lookup, followed by a `case`
+destructure to unwrap the `Maybe`. For 1024 bytes, that is 1024 `Just`
+allocations eliminated. Also removes the `Array` import entirely.
+
+| Size | V23 (Array.get) | V26 (switch) | Change |
+|---|---|---|---|
+| 8 B | 211 ns | 177 ns | **16% faster** |
+| 32 B | 672 ns | 556 ns | **17% faster** |
+| 256 B | 4,963 ns | 4,236 ns | **15% faster** |
+| 1024 B | 18,884 ns | 17,675 ns | **6% faster** |
+| 4096 B | 77,275 ns | 71,278 ns | **8% faster** |
+
+Bigger improvement at smaller sizes where the per-lookup `Maybe`
+allocation is a larger fraction of total cost.
+
+### V27 — Branchless nibble-to-char computation (same speed as V23)
+
+Replaced `Array.get` with branchless arithmetic: split byte into two
+nibbles, convert each to a char code via
+`nibble + 48 + 39 * Bitwise.shiftRightZfBy 4 (nibble + 6)`,
+then `String.fromChar (Char.fromCode ...)` concatenated with `++`.
+V8 interns single-character ASCII strings, so `Char.fromCode` for hex
+digits returns cached strings (no allocation). However, each byte
+requires an extra `++` to join the two 1-char strings, creating one
+ConsString node per byte that roughly offsets the saved `Just`
+allocation from `Array.get`. No measurable improvement.
 
 ## fromString: Optimization Journey
 
@@ -173,6 +207,42 @@ a time. Eliminates all `String.slice` and `String.uncons` calls. However,
 `String.toList` still allocates one `__Utils_chr` wrapper per character,
 so the improvement over V4 is inconsistent (0-12% depending on run).
 
+### V28 — Branchless or-0x20 validation (27% SLOWER)
+
+Replaced the 3-branch `hexDigit` validation (digits / uppercase /
+lowercase) with `Bitwise.or 0x20 code` to lowercase, then 2 range checks
+on the lowercased value, followed by the branchless nibble formula
+`lc - 48 - 39 * Bitwise.shiftRightZfBy 6 lc`.
+
+The initial (buggy) version omitted proper range checks and showed a
+21% improvement, but accepted invalid characters like `@` and `` ` ``
+(which `or 0x20` maps into valid ranges). After adding correct
+validation (`(0x30 <= lc && lc <= 0x39) || (0x61 <= lc && lc <= 0x66)`),
+the improvement vanished — 27% slower at 1024 bytes. The extra
+`Bitwise.or` operation and the branchless formula
+(subtraction + multiplication + shift) are more work per nibble than
+V1's simple `code - 0x30` / `code - 0x37` / `code - 0x57` in each
+branch. The original improvement came entirely from skipping validation.
+
+| Size | V1 (3-branch) | V28 (or-0x20) | Change |
+|---|---|---|---|
+| 8 B | 261 ns | 268 ns | 3% slower |
+| 32 B | 630 ns | 677 ns | **7% slower** |
+| 1024 B | 16,347 ns | 20,738 ns | **27% slower** |
+
+### V29 — Backward iteration, no List.reverse (9% SLOWER)
+
+Iterated the hex string from end to beginning, prepending encoders to
+build the list in forward order — eliminating `List.reverse` entirely.
+However, the extra arithmetic per iteration (computing backward offsets,
+handling remainder bytes at the end of the string first) outweighed the
+`List.reverse` savings.
+
+| Size | V1 (forward + reverse) | V29 (backward) | Change |
+|---|---|---|---|
+| fromString 1024 B | 16,514 ns | 18,040 ns | **9% slower** |
+| fromStringUnchecked 1024 B | 12,940 ns | 12,767 ns | ~same |
+
 ## fromStringUnchecked: Optimization Journey
 
 `fromStringUnchecked` assumes valid lowercase hex input (even length, only
@@ -218,9 +288,10 @@ is an inescapable cost of Elm's Char type (2 allocations per byte: Just tuple
 
 | Technique | Impact | Why |
 |---|---|---|
+| Int case switch table (toString) | +6-17% | JS `switch` on Int compiles to jump table; zero allocation vs Array.get's `Just` wrapper |
 | String accumulator via ++ (toString) | +20% | V8 ConsString ropes make ++ O(1); eliminates List.reverse + String.concat |
 | Records over tuples (loop state) | ~5-10% | JS engines optimize fixed-shape objects better than Elm tuples |
-| Array lookup table (toString) | +32% | One Array.get replaces nibble branching + Char.fromCode |
+| Array lookup table (toString) | +32% | One Array.get replaces nibble branching + Char.fromCode (superseded by switch table) |
 | Pre-joining strings per word (toString) | +25% | 4x shorter list for final String.concat |
 | Decode.map2/map5 batching (toString) | +20% | Fewer loop iterations = fewer record + Loop wrapper allocs |
 | Int32 encoder batching (fromString) | +60% | 4x fewer Encoder nodes, 4x fewer list cons cells |
@@ -238,10 +309,13 @@ is an inescapable cost of Elm's Char type (2 allocations per byte: Just tuple
 | Record literal vs constructor (toString) | 0% | V8 hidden classes make EncState constructor call free |
 | Two-phase decoder (toString) | 0% to -10% | Decode.andThen overhead between loops negates simpler function bodies |
 | uint16 lookup table (toString) | +10% | Halves lookups but 566KB table unacceptable for code size |
-| 256-branch pattern match (fromString) | -1878% | Elm compiles case-on-string to linear if-else chains |
+| Branchless nibble-to-char (toString) | 0% | ConsString node from joining 2 char strings offsets saved `Just` alloc |
+| 256-branch pattern match (fromString) | -1878% | Elm compiles case-on-string to linear if-else chains (case-on-Int is different!) |
 | Dict lookup (fromString) | -450% | Red-black tree: O(log n) string comparisons per lookup |
 | Bytes as intermediate (fromString) | -47% to -78% | Encode.string overhead (2 passes + ArrayBuffer) far exceeds gains |
 | Array-based nibble lookup (fromString) | mixed | Two depth-2 Array.get + Maybe > simple if-else chain |
+| Branchless or-0x20 validation (fromString) | -27% | Extra Bitwise.or + branchless formula is more work than simple per-branch subtraction |
+| Backward iteration, no List.reverse (fromString) | -9% | Extra offset arithmetic outweighs List.reverse savings |
 | `== 0` vs `<= 0` branch style | 0% | V8 branch predictor handles both trivially |
 | Hot-path-first branching | 0% | V8 branch predictor handles both trivially |
 
@@ -263,9 +337,12 @@ is an inescapable cost of Elm's Char type (2 allocations per byte: Just tuple
    `fromString`, this is an inescapable cost — `String.uncons` is needed to
    extract char codes.
 
-4. **Elm's `Array` is an RRB tree.** `Array.get` on a 256-element array does
-   2 node lookups (32-wide branching, depth = ceil(log32(256)) = 2). Still
-   faster than computed alternatives because it avoids per-element allocation.
+4. **Elm's `case` on Int compiles to JS `switch`.** V8 optimizes dense integer
+   `switch` to jump tables — O(1) with zero allocation. A 256-branch `case`
+   on `Int` is faster than `Array.get` (which requires RRB tree traversal +
+   `Maybe` allocation) and is the preferred lookup strategy for byte-to-hex
+   mapping. Note: `case` on `String` compiles to linear if-else chains and
+   should be avoided.
 
 5. **Records beat tuples for loop state.** JS engines (V8) optimize objects with
    stable shapes via hidden classes. Elm records compile to plain JS objects
