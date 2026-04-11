@@ -10,10 +10,10 @@
             "elm/bytes": "1.0.8",
             "elm/core": "1.0.5",
             "elm/html": "1.0.1",
-            "elm/json": "1.1.4"
+            "elm/json": "1.1.4",
+            "jxxcarlson/hex": "4.0.1"
         },
         "indirect": {
-            "elm/time": "1.0.0",
             "elm/virtual-dom": "1.0.5"
         }
     },
@@ -22,7 +22,8 @@
             "elm-explorations/test": "2.2.1"
         },
         "indirect": {
-            "elm/random": "1.0.0"
+            "elm/random": "1.0.0",
+            "elm/time": "1.0.0"
         }
     }
 }

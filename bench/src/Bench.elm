@@ -1,5 +1,11 @@
 module Bench exposing
-    ( v1_fromBytes_1024
+    ( jxx_fromBytes_1024
+    , jxx_fromBytes_256
+    , jxx_fromBytes_32
+    , jxx_toBytes_1024
+    , jxx_toBytes_256
+    , jxx_toBytes_32
+    , v1_fromBytes_1024
     , v1_fromBytes_256
     , v1_fromBytes_32
     , v1_fromBytes_4096
@@ -55,6 +61,7 @@ V2 is a copy of V1 (baseline for comparison).
 import Bytes exposing (Bytes)
 import Bytes.Encode as Encode
 import Hex
+import Hex.Convert
 import Hex.V2
 import XBytes exposing (XBytes)
 import XBytes.V2
@@ -115,6 +122,23 @@ hex256 =
 hex1024 : String
 hex1024 =
     Hex.fromBytes bytes1024
+
+
+{-| Uppercase hex strings for jxxcarlson/hex (which produces uppercase output).
+-}
+hexUpper32 : String
+hexUpper32 =
+    Hex.Convert.toString bytes32
+
+
+hexUpper256 : String
+hexUpper256 =
+    Hex.Convert.toString bytes256
+
+
+hexUpper1024 : String
+hexUpper1024 =
+    Hex.Convert.toString bytes1024
 
 
 
@@ -285,3 +309,37 @@ v2_xb_fromHex_1024 () =
 v2_xb_concat_100 : () -> XBytes
 v2_xb_concat_100 () =
     XBytes.V2.concat xbList100
+
+
+
+-- jxxcarlson/hex benchmarks
+
+
+jxx_fromBytes_32 : () -> String
+jxx_fromBytes_32 () =
+    Hex.Convert.toString bytes32
+
+
+jxx_fromBytes_256 : () -> String
+jxx_fromBytes_256 () =
+    Hex.Convert.toString bytes256
+
+
+jxx_fromBytes_1024 : () -> String
+jxx_fromBytes_1024 () =
+    Hex.Convert.toString bytes1024
+
+
+jxx_toBytes_32 : () -> Maybe Bytes
+jxx_toBytes_32 () =
+    Hex.Convert.toBytes hexUpper32
+
+
+jxx_toBytes_256 : () -> Maybe Bytes
+jxx_toBytes_256 () =
+    Hex.Convert.toBytes hexUpper256
+
+
+jxx_toBytes_1024 : () -> Maybe Bytes
+jxx_toBytes_1024 () =
+    Hex.Convert.toBytes hexUpper1024
