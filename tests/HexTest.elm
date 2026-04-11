@@ -1,11 +1,10 @@
 module HexTest exposing (suite)
 
 import Bytes exposing (Bytes)
-import Bytes.Decode as Decode
 import Bytes.Encode as Encode
 import Expect
 import Hex
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 suite : Test
@@ -56,14 +55,17 @@ fromBytesTests =
         , test "all byte values 0-255" <|
             \_ ->
                 let
+                    bytes : Bytes
                     bytes =
                         Encode.encode (Encode.sequence (List.map (\i -> Encode.unsignedInt8 i) (List.range 0 255)))
 
+                    result : String
                     result =
                         Hex.fromBytes bytes
 
+                    expected : String
                     expected =
-                        String.join "" (List.map byteToHex (List.range 0 255))
+                        String.concat (List.map byteToHex (List.range 0 255))
                 in
                 Expect.equal expected result
         , test "5 bytes (remainder after word)" <|
@@ -73,9 +75,11 @@ fromBytesTests =
         , test "large input (1024 bytes)" <|
             \_ ->
                 let
+                    bytes : Bytes
                     bytes =
                         makeBytes 1024
 
+                    result : String
                     result =
                         Hex.fromBytes bytes
                 in
@@ -161,6 +165,7 @@ toBytesTests =
         , test "large input round-trips" <|
             \_ ->
                 let
+                    hex : String
                     hex =
                         Hex.fromBytes (makeBytes 512)
                 in
@@ -200,6 +205,7 @@ toBytesUncheckedTests =
         , test "large input round-trips" <|
             \_ ->
                 let
+                    hex : String
                     hex =
                         Hex.fromBytes (makeBytes 512)
                 in
@@ -219,16 +225,20 @@ roundTripTests =
         [ test "fromBytes >> toBytes for various sizes" <|
             \_ ->
                 let
+                    sizes : List Int
                     sizes =
                         [ 0, 1, 2, 3, 4, 5, 7, 8, 15, 16, 31, 32, 63, 64, 128, 256, 512, 1024 ]
 
+                    allPass : Bool
                     allPass =
                         List.all
                             (\n ->
                                 let
+                                    bytes : Bytes
                                     bytes =
                                         makeBytes n
 
+                                    hex : String
                                     hex =
                                         Hex.fromBytes bytes
                                 in
@@ -242,9 +252,11 @@ roundTripTests =
         , test "toBytes >> fromBytes >> toBytes is stable" <|
             \_ ->
                 let
+                    hex : String
                     hex =
                         "deadbeef0123456789abcdef"
 
+                    result : Maybe String
                     result =
                         Hex.toBytes hex
                             |> Maybe.map Hex.fromBytes
@@ -270,9 +282,11 @@ makeBytes n =
 byteToHex : Int -> String
 byteToHex n =
     let
+        hi : Int
         hi =
             n // 16
 
+        lo : Int
         lo =
             modBy 16 n
     in

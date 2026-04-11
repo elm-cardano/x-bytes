@@ -39,12 +39,15 @@ import Bytes.Encode as Encode
 fromBytes : Bytes -> String
 fromBytes bytes =
     let
+        width : Int
         width =
             Bytes.width bytes
 
+        fullWords : Int
         fullWords =
             width // 4
 
+        remainder : Int
         remainder =
             modBy 4 width
     in
@@ -941,6 +944,7 @@ lowercase hex digits.
 toBytes : String -> Maybe Bytes
 toBytes hex =
     let
+        len : Int
         len =
             String.length hex
     in
@@ -949,18 +953,22 @@ toBytes hex =
 
     else
         let
+            byteCount : Int
             byteCount =
                 len // 2
 
+            fullWords : Int
             fullWords =
                 byteCount // 4
-
-            remainder =
-                modBy 4 byteCount
         in
         decodeWords hex 0 fullWords []
             |> Maybe.andThen
                 (\( offset, acc ) ->
+                    let
+                        remainder : Int
+                        remainder =
+                            modBy 4 byteCount
+                    in
                     decodeRemainder hex offset remainder acc
                 )
             |> Maybe.map
@@ -973,15 +981,19 @@ decodeWords : String -> Int -> Int -> List Encode.Encoder -> Maybe ( Int, List E
 decodeWords hex offset remaining acc =
     if remaining > 0 then
         let
+            b0 : Int
             b0 =
                 hexPairAt hex offset
 
+            b1 : Int
             b1 =
                 hexPairAt hex (offset + 2)
 
+            b2 : Int
             b2 =
                 hexPairAt hex (offset + 4)
 
+            b3 : Int
             b3 =
                 hexPairAt hex (offset + 6)
         in
@@ -990,6 +1002,7 @@ decodeWords hex offset remaining acc =
 
         else
             let
+                word : Int
                 word =
                     Bitwise.or
                         (Bitwise.or (Bitwise.shiftLeftBy 24 b0) (Bitwise.shiftLeftBy 16 b1))
@@ -1005,6 +1018,7 @@ decodeRemainder : String -> Int -> Int -> List Encode.Encoder -> Maybe (List Enc
 decodeRemainder hex offset remaining acc =
     if remaining > 0 then
         let
+            byte : Int
             byte =
                 hexPairAt hex offset
         in
@@ -1025,9 +1039,11 @@ one Just allocation per hex digit pair (2048 allocations saved for 1024 bytes).
 hexPairAt : String -> Int -> Int
 hexPairAt hex offset =
     let
+        hi : Int
         hi =
             hexDigit (String.slice offset (offset + 1) hex)
 
+        lo : Int
         lo =
             hexDigit (String.slice (offset + 1) (offset + 2) hex)
     in
@@ -1048,6 +1064,7 @@ hexDigit s =
     case String.uncons s of
         Just ( c, _ ) ->
             let
+                code : Int
                 code =
                     Char.toCode c
             in
@@ -1086,15 +1103,19 @@ About 20% faster than [`toBytes`](#toBytes).
 toBytesUnchecked : String -> Bytes
 toBytesUnchecked hex =
     let
+        len : Int
         len =
             String.length hex
 
+        byteCount : Int
         byteCount =
             len // 2
 
+        fullWords : Int
         fullWords =
             byteCount // 4
 
+        remainder : Int
         remainder =
             modBy 4 byteCount
 
@@ -1108,18 +1129,23 @@ uncheckedWords : String -> Int -> Int -> List Encode.Encoder -> ( Int, List Enco
 uncheckedWords hex offset remaining acc =
     if remaining > 0 then
         let
+            b0 : Int
             b0 =
                 uncheckedPairAt hex offset
 
+            b1 : Int
             b1 =
                 uncheckedPairAt hex (offset + 2)
 
+            b2 : Int
             b2 =
                 uncheckedPairAt hex (offset + 4)
 
+            b3 : Int
             b3 =
                 uncheckedPairAt hex (offset + 6)
 
+            word : Int
             word =
                 Bitwise.or
                     (Bitwise.or (Bitwise.shiftLeftBy 24 b0) (Bitwise.shiftLeftBy 16 b1))
@@ -1158,6 +1184,7 @@ uncheckedNibble s =
     case String.uncons s of
         Just ( c, _ ) ->
             let
+                code : Int
                 code =
                     Char.toCode c
             in
