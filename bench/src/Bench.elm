@@ -26,6 +26,33 @@ module Bench exposing
     , fromStr_v9_1024
     , fromStr_v9_256
     , fromStr_v9_32
+    , fromStr_v11_1024
+    , fromStr_v11_256
+    , fromStr_v11_32
+    , fromStr_v12_1024
+    , fromStr_v12_256
+    , fromStr_v12_32
+    , fromStr_v13_1024
+    , fromStr_v13_256
+    , fromStr_v13_32
+    , fromStr_v14_1024
+    , fromStr_v14_256
+    , fromStr_v14_32
+    , fromStr_v15_1024
+    , fromStr_v15_256
+    , fromStr_v15_32
+    , fromStr_v16_1024
+    , fromStr_v16_256
+    , fromStr_v16_32
+    , fromStr_v17_1024
+    , fromStr_v17_256
+    , fromStr_v17_32
+    , fromStr_v18_1024
+    , fromStr_v18_256
+    , fromStr_v18_32
+    , fromStr_v19_1024
+    , fromStr_v19_256
+    , fromStr_v19_32
     , toStr_v10_1024
     , toStr_v10_256
     , toStr_v10_32
@@ -56,6 +83,24 @@ module Bench exposing
     , toStr_v9_1024
     , toStr_v9_256
     , toStr_v9_32
+    , toStr_v20_1024
+    , toStr_v20_256
+    , toStr_v20_32
+    , toStr_v21_1024
+    , toStr_v21_256
+    , toStr_v21_32
+    , toStr_v22_1024
+    , toStr_v22_256
+    , toStr_v22_32
+    , toStr_v23_1024
+    , toStr_v23_256
+    , toStr_v23_32
+    , toStr_v24_1024
+    , toStr_v24_256
+    , toStr_v24_32
+    , toStr_v25_1024
+    , toStr_v25_256
+    , toStr_v25_32
     )
 
 {-| Benchmark functions for Hex encoding/decoding.
@@ -87,6 +132,21 @@ import Hex.V5
 import Hex.V6
 import Hex.V7
 import Hex.V8
+import Hex.V11
+import Hex.V15
+import Hex.V16
+import Hex.V17
+import Hex.V18
+import Hex.V19
+import Hex.V12
+import Hex.V13
+import Hex.V14
+import Hex.V20
+import Hex.V21
+import Hex.V22
+import Hex.V23
+import Hex.V24
+import Hex.V25
 import Hex.V9
 
 
@@ -537,3 +597,316 @@ fromStr_v9_256 () =
 fromStr_v9_1024 : () -> Maybe Bytes
 fromStr_v9_1024 () =
     Hex.V9.fromString hex1024
+
+
+{-| V11 fromString on 32 bytes (64 hex chars). No validation, branchless, String.slice.
+-}
+fromStr_v11_32 : () -> Maybe Bytes
+fromStr_v11_32 () =
+    Just (Hex.V11.fromString hex32)
+
+
+{-| V11 fromString on 256 bytes (512 hex chars).
+-}
+fromStr_v11_256 : () -> Maybe Bytes
+fromStr_v11_256 () =
+    Just (Hex.V11.fromString hex256)
+
+
+{-| V11 fromString on 1024 bytes (2048 hex chars).
+-}
+fromStr_v11_1024 : () -> Maybe Bytes
+fromStr_v11_1024 () =
+    Just (Hex.V11.fromString hex1024)
+
+
+{-| V12 fromString on 32 bytes (64 hex chars). No validation, branchless, String.toList.
+-}
+fromStr_v12_32 : () -> Maybe Bytes
+fromStr_v12_32 () =
+    Just (Hex.V12.fromString hex32)
+
+
+{-| V12 fromString on 256 bytes (512 hex chars).
+-}
+fromStr_v12_256 : () -> Maybe Bytes
+fromStr_v12_256 () =
+    Just (Hex.V12.fromString hex256)
+
+
+{-| V12 fromString on 1024 bytes (2048 hex chars).
+-}
+fromStr_v12_1024 : () -> Maybe Bytes
+fromStr_v12_1024 () =
+    Just (Hex.V12.fromString hex1024)
+
+
+{-| V13 fromString on 32 bytes (64 hex chars). Bytes intermediate, map5, Int16 output.
+-}
+fromStr_v13_32 : () -> Maybe Bytes
+fromStr_v13_32 () =
+    Just (Hex.V13.fromString hex32)
+
+
+{-| V13 fromString on 256 bytes (512 hex chars).
+-}
+fromStr_v13_256 : () -> Maybe Bytes
+fromStr_v13_256 () =
+    Just (Hex.V13.fromString hex256)
+
+
+{-| V13 fromString on 1024 bytes (2048 hex chars).
+-}
+fromStr_v13_1024 : () -> Maybe Bytes
+fromStr_v13_1024 () =
+    Just (Hex.V13.fromString hex1024)
+
+
+{-| V14 fromString on 32 bytes (64 hex chars). Bytes intermediate, map5-of-map2, Int32 output.
+-}
+fromStr_v14_32 : () -> Maybe Bytes
+fromStr_v14_32 () =
+    Just (Hex.V14.fromString hex32)
+
+
+{-| V14 fromString on 256 bytes (512 hex chars).
+-}
+fromStr_v14_256 : () -> Maybe Bytes
+fromStr_v14_256 () =
+    Just (Hex.V14.fromString hex256)
+
+
+{-| V14 fromString on 1024 bytes (2048 hex chars).
+-}
+fromStr_v14_1024 : () -> Maybe Bytes
+fromStr_v14_1024 () =
+    Just (Hex.V14.fromString hex1024)
+
+
+{-| V15 fromString on 32 bytes (64 hex chars). Direct pattern match on hex pairs.
+-}
+fromStr_v15_32 : () -> Maybe Bytes
+fromStr_v15_32 () =
+    Just (Hex.V15.fromString hex32)
+
+
+{-| V15 fromString on 256 bytes (512 hex chars).
+-}
+fromStr_v15_256 : () -> Maybe Bytes
+fromStr_v15_256 () =
+    Just (Hex.V15.fromString hex256)
+
+
+{-| V15 fromString on 1024 bytes (2048 hex chars).
+-}
+fromStr_v15_1024 : () -> Maybe Bytes
+fromStr_v15_1024 () =
+    Just (Hex.V15.fromString hex1024)
+
+
+{-| V16 fromString on 32 bytes. Slice pair + double uncons.
+-}
+fromStr_v16_32 : () -> Maybe Bytes
+fromStr_v16_32 () =
+    Just (Hex.V16.fromString hex32)
+
+
+{-| V16 fromString on 256 bytes.
+-}
+fromStr_v16_256 : () -> Maybe Bytes
+fromStr_v16_256 () =
+    Just (Hex.V16.fromString hex256)
+
+
+{-| V16 fromString on 1024 bytes.
+-}
+fromStr_v16_1024 : () -> Maybe Bytes
+fromStr_v16_1024 () =
+    Just (Hex.V16.fromString hex1024)
+
+
+{-| V17 fromString on 32 bytes. Dict lookup.
+-}
+fromStr_v17_32 : () -> Maybe Bytes
+fromStr_v17_32 () =
+    Just (Hex.V17.fromString hex32)
+
+
+{-| V17 fromString on 256 bytes.
+-}
+fromStr_v17_256 : () -> Maybe Bytes
+fromStr_v17_256 () =
+    Just (Hex.V17.fromString hex256)
+
+
+{-| V17 fromString on 1024 bytes.
+-}
+fromStr_v17_1024 : () -> Maybe Bytes
+fromStr_v17_1024 () =
+    Just (Hex.V17.fromString hex1024)
+
+
+{-| V18 fromString on 32 bytes. == 0 instead of <= 0.
+-}
+fromStr_v18_32 : () -> Maybe Bytes
+fromStr_v18_32 () =
+    Just (Hex.V18.fromString hex32)
+
+
+{-| V18 fromString on 256 bytes.
+-}
+fromStr_v18_256 : () -> Maybe Bytes
+fromStr_v18_256 () =
+    Just (Hex.V18.fromString hex256)
+
+
+{-| V18 fromString on 1024 bytes.
+-}
+fromStr_v18_1024 : () -> Maybe Bytes
+fromStr_v18_1024 () =
+    Just (Hex.V18.fromString hex1024)
+
+
+fromStr_v19_32 : () -> Maybe Bytes
+fromStr_v19_32 () =
+    Just (Hex.V19.fromString hex32)
+
+
+fromStr_v19_256 : () -> Maybe Bytes
+fromStr_v19_256 () =
+    Just (Hex.V19.fromString hex256)
+
+
+fromStr_v19_1024 : () -> Maybe Bytes
+fromStr_v19_1024 () =
+    Just (Hex.V19.fromString hex1024)
+
+
+
+-- toString V20-V22 benchmarks
+
+
+{-| V20 toString on 32 bytes. Record literal instead of EncState constructor.
+-}
+toStr_v20_32 : () -> String
+toStr_v20_32 () =
+    Hex.V20.toString bytes32
+
+
+{-| V20 toString on 256 bytes.
+-}
+toStr_v20_256 : () -> String
+toStr_v20_256 () =
+    Hex.V20.toString bytes256
+
+
+{-| V20 toString on 1024 bytes.
+-}
+toStr_v20_1024 : () -> String
+toStr_v20_1024 () =
+    Hex.V20.toString bytes1024
+
+
+{-| V21 toString on 32 bytes. Push individual byte strings, no ++ per word.
+-}
+toStr_v21_32 : () -> String
+toStr_v21_32 () =
+    Hex.V21.toString bytes32
+
+
+{-| V21 toString on 256 bytes.
+-}
+toStr_v21_256 : () -> String
+toStr_v21_256 () =
+    Hex.V21.toString bytes256
+
+
+{-| V21 toString on 1024 bytes.
+-}
+toStr_v21_1024 : () -> String
+toStr_v21_1024 () =
+    Hex.V21.toString bytes1024
+
+
+{-| V22 toString on 32 bytes. uint16 lookup table (65536 entries).
+-}
+toStr_v22_32 : () -> String
+toStr_v22_32 () =
+    Hex.V22.toString bytes32
+
+
+{-| V22 toString on 256 bytes.
+-}
+toStr_v22_256 : () -> String
+toStr_v22_256 () =
+    Hex.V22.toString bytes256
+
+
+{-| V22 toString on 1024 bytes.
+-}
+toStr_v22_1024 : () -> String
+toStr_v22_1024 () =
+    Hex.V22.toString bytes1024
+
+
+{-| V23 toString on 32 bytes. String accumulator, no List.reverse/String.concat.
+-}
+toStr_v23_32 : () -> String
+toStr_v23_32 () =
+    Hex.V23.toString bytes32
+
+
+{-| V23 toString on 256 bytes.
+-}
+toStr_v23_256 : () -> String
+toStr_v23_256 () =
+    Hex.V23.toString bytes256
+
+
+{-| V23 toString on 1024 bytes.
+-}
+toStr_v23_1024 : () -> String
+toStr_v23_1024 () =
+    Hex.V23.toString bytes1024
+
+
+{-| V24 toString on 32 bytes. Two-phase: map5 word loop + separate byte loop.
+-}
+toStr_v24_32 : () -> String
+toStr_v24_32 () =
+    Hex.V24.toString bytes32
+
+
+{-| V24 toString on 256 bytes.
+-}
+toStr_v24_256 : () -> String
+toStr_v24_256 () =
+    Hex.V24.toString bytes256
+
+
+{-| V24 toString on 1024 bytes.
+-}
+toStr_v24_1024 : () -> String
+toStr_v24_1024 () =
+    Hex.V24.toString bytes1024
+
+
+{-| V25 toString on 32 bytes. Single-word loop, no map5.
+-}
+toStr_v25_32 : () -> String
+toStr_v25_32 () =
+    Hex.V25.toString bytes32
+
+
+{-| V25 toString on 256 bytes.
+-}
+toStr_v25_256 : () -> String
+toStr_v25_256 () =
+    Hex.V25.toString bytes256
+
+
+{-| V25 toString on 1024 bytes.
+-}
+toStr_v25_1024 : () -> String
+toStr_v25_1024 () =
+    Hex.V25.toString bytes1024

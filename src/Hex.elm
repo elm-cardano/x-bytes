@@ -1,8 +1,8 @@
-module Hex exposing (toString, fromString)
+module Hex exposing (toString, fromString, fromStringUnchecked)
 
 {-| Convert between `Bytes` and hexadecimal strings.
 
-@docs toString, fromString
+@docs toString, fromString, fromStringUnchecked
 
 -}
 
@@ -43,12 +43,12 @@ toString bytes =
 
 
 type alias EncState =
-    { words : Int, rem : Int, acc : List String }
+    { words : Int, rem : Int, acc : String }
 
 
 toStringLoop : Int -> Int -> Decoder String
 toStringLoop fullWords remainder =
-    Decode.loop (EncState fullWords remainder []) encStep
+    Decode.loop { words = fullWords, rem = remainder, acc = "" } encStep
 
 
 encStep : EncState -> Decoder (Decode.Step EncState String)
@@ -57,16 +57,16 @@ encStep state =
         Decode.map5
             (\w1 w2 w3 w4 w5 ->
                 Decode.Loop
-                    (EncState (state.words - 5)
-                        state.rem
-                        (word32ToHex w5
-                            :: word32ToHex w4
-                            :: word32ToHex w3
-                            :: word32ToHex w2
-                            :: word32ToHex w1
-                            :: state.acc
-                        )
-                    )
+                    { words = state.words - 5
+                    , rem = state.rem
+                    , acc =
+                        state.acc
+                            ++ word32ToHex w1
+                            ++ word32ToHex w2
+                            ++ word32ToHex w3
+                            ++ word32ToHex w4
+                            ++ word32ToHex w5
+                    }
             )
             (Decode.unsignedInt32 BE)
             (Decode.unsignedInt32 BE)
@@ -78,10 +78,10 @@ encStep state =
         Decode.map2
             (\w1 w2 ->
                 Decode.Loop
-                    (EncState (state.words - 2)
-                        state.rem
-                        (word32ToHex w2 :: word32ToHex w1 :: state.acc)
-                    )
+                    { words = state.words - 2
+                    , rem = state.rem
+                    , acc = state.acc ++ word32ToHex w1 ++ word32ToHex w2
+                    }
             )
             (Decode.unsignedInt32 BE)
             (Decode.unsignedInt32 BE)
@@ -90,18 +90,18 @@ encStep state =
         Decode.unsignedInt32 BE
             |> Decode.map
                 (\word ->
-                    Decode.Loop (EncState 0 state.rem (word32ToHex word :: state.acc))
+                    Decode.Loop { words = 0, rem = state.rem, acc = state.acc ++ word32ToHex word }
                 )
 
     else if state.rem > 0 then
         Decode.unsignedInt8
             |> Decode.map
                 (\byte ->
-                    Decode.Loop (EncState 0 (state.rem - 1) (lookupByte byte :: state.acc))
+                    Decode.Loop { words = 0, rem = state.rem - 1, acc = state.acc ++ lookupByte byte }
                 )
 
     else
-        Decode.succeed (Decode.Done (String.concat (List.reverse state.acc)))
+        Decode.succeed (Decode.Done state.acc)
 
 
 word32ToHex : Int -> String
@@ -517,3 +517,93 @@ hexDigit s =
 
         Nothing ->
             -1
+
+
+
+-- DECODE (UNCHECKED)
+
+
+{-| Parse a lowercase hex string into `Bytes`. Does not validate the input:
+assumes even length and only lowercase hex characters (0-9, a-f).
+About 20% faster than `fromString`.
+
+    fromStringUnchecked "ff"
+    --> <1 byte>
+
+-}
+fromStringUnchecked : String -> Bytes
+fromStringUnchecked hex =
+    let
+        len =
+            String.length hex
+
+        byteCount =
+            len // 2
+
+        fullWords =
+            byteCount // 4
+
+        remainder =
+            modBy 4 byteCount
+
+        ( offset, acc ) =
+            uncheckedWords hex 0 fullWords []
+    in
+    Encode.encode (Encode.sequence (List.reverse (uncheckedRemainder hex offset remainder acc)))
+
+
+uncheckedWords : String -> Int -> Int -> List Encode.Encoder -> ( Int, List Encode.Encoder )
+uncheckedWords hex offset remaining acc =
+    if remaining > 0 then
+        let
+            b0 =
+                uncheckedPairAt hex offset
+
+            b1 =
+                uncheckedPairAt hex (offset + 2)
+
+            b2 =
+                uncheckedPairAt hex (offset + 4)
+
+            b3 =
+                uncheckedPairAt hex (offset + 6)
+
+            word =
+                Bitwise.or
+                    (Bitwise.or (Bitwise.shiftLeftBy 24 b0) (Bitwise.shiftLeftBy 16 b1))
+                    (Bitwise.or (Bitwise.shiftLeftBy 8 b2) b3)
+        in
+        uncheckedWords hex (offset + 8) (remaining - 1) (Encode.unsignedInt32 BE word :: acc)
+
+    else
+        ( offset, acc )
+
+
+uncheckedRemainder : String -> Int -> Int -> List Encode.Encoder -> List Encode.Encoder
+uncheckedRemainder hex offset remaining acc =
+    if remaining > 0 then
+        uncheckedRemainder hex (offset + 2) (remaining - 1) (Encode.unsignedInt8 (uncheckedPairAt hex offset) :: acc)
+
+    else
+        acc
+
+
+uncheckedPairAt : String -> Int -> Int
+uncheckedPairAt hex offset =
+    Bitwise.or
+        (Bitwise.shiftLeftBy 4 (uncheckedNibble (String.slice offset (offset + 1) hex)))
+        (uncheckedNibble (String.slice (offset + 1) (offset + 2) hex))
+
+
+uncheckedNibble : String -> Int
+uncheckedNibble s =
+    case String.uncons s of
+        Just ( c, _ ) ->
+            let
+                code =
+                    Char.toCode c
+            in
+            code - 48 - 39 * Bitwise.shiftRightZfBy 6 code
+
+        Nothing ->
+            0
