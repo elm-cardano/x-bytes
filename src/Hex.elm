@@ -934,10 +934,7 @@ toBytes hex =
 
 decodeWords : String -> Int -> Int -> List Encode.Encoder -> Maybe ( Int, List Encode.Encoder )
 decodeWords hex offset remaining acc =
-    if remaining <= 0 then
-        Just ( offset, acc )
-
-    else
+    if remaining > 0 then
         let
             b0 =
                 hexPairAt hex offset
@@ -963,13 +960,13 @@ decodeWords hex offset remaining acc =
             in
             decodeWords hex (offset + 8) (remaining - 1) (Encode.unsignedInt32 BE word :: acc)
 
+    else
+        Just ( offset, acc )
+
 
 decodeRemainder : String -> Int -> Int -> List Encode.Encoder -> Maybe (List Encode.Encoder)
 decodeRemainder hex offset remaining acc =
-    if remaining <= 0 then
-        Just acc
-
-    else
+    if remaining > 0 then
         let
             byte =
                 hexPairAt hex offset
@@ -979,6 +976,9 @@ decodeRemainder hex offset remaining acc =
 
         else
             decodeRemainder hex (offset + 2) (remaining - 1) (Encode.unsignedInt8 byte :: acc)
+
+    else
+        Just acc
 
 
 hexPairAt : String -> Int -> Int
