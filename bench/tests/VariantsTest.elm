@@ -14,34 +14,34 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "V2 equivalence with V1"
-        [ describe "toString"
+        [ describe "fromBytes"
             (List.map
                 (\n ->
                     test (String.fromInt n ++ "B") <|
                         \_ ->
-                            Hex.V2.toString (makeBytes n)
-                                |> Expect.equal (Hex.toString (makeBytes n))
+                            Hex.V2.fromBytes (makeBytes n)
+                                |> Expect.equal (Hex.fromBytes (makeBytes n))
                 )
                 testSizes
             )
-        , describe "fromString"
+        , describe "toBytes"
             (List.map
                 (\hex ->
                     test (labelFor hex) <|
                         \_ ->
-                            Maybe.map Hex.toString (Hex.V2.fromString hex)
-                                |> Expect.equal (Maybe.map Hex.toString (Hex.fromString hex))
+                            Maybe.map Hex.fromBytes (Hex.V2.toBytes hex)
+                                |> Expect.equal (Maybe.map Hex.fromBytes (Hex.toBytes hex))
                 )
                 testHexStrings
             )
-        , describe "fromStringUnchecked"
+        , describe "toBytesUnchecked"
             (List.map
                 (\hex ->
                     test (labelFor hex) <|
                         \_ ->
-                            Hex.V2.fromStringUnchecked hex
-                                |> Hex.toString
-                                |> Expect.equal (Hex.toString (Hex.fromStringUnchecked hex))
+                            Hex.V2.toBytesUnchecked hex
+                                |> Hex.fromBytes
+                                |> Expect.equal (Hex.fromBytes (Hex.toBytesUnchecked hex))
                 )
                 lowercaseHexStrings
             )
@@ -69,11 +69,11 @@ testHexStrings =
     , "CaFe"
     , "0123456789abcdef"
     , "0123456789ABCDEF"
-    , Hex.toString (makeBytes 8)
-    , Hex.toString (makeBytes 32)
-    , Hex.toString (makeBytes 256)
-    , Hex.toString (makeBytes 1024)
-    , String.toUpper (Hex.toString (makeBytes 32))
+    , Hex.fromBytes (makeBytes 8)
+    , Hex.fromBytes (makeBytes 32)
+    , Hex.fromBytes (makeBytes 256)
+    , Hex.fromBytes (makeBytes 1024)
+    , String.toUpper (Hex.fromBytes (makeBytes 32))
 
     -- Invalid inputs (should all return Nothing)
     , "abc"
@@ -94,10 +94,10 @@ lowercaseHexStrings =
     , "ff"
     , "deadbeef"
     , "0123456789abcdef"
-    , Hex.toString (makeBytes 8)
-    , Hex.toString (makeBytes 32)
-    , Hex.toString (makeBytes 256)
-    , Hex.toString (makeBytes 1024)
+    , Hex.fromBytes (makeBytes 8)
+    , Hex.fromBytes (makeBytes 32)
+    , Hex.fromBytes (makeBytes 256)
+    , Hex.fromBytes (makeBytes 1024)
     ]
 
 

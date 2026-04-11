@@ -1,8 +1,8 @@
-module Hex exposing (toString, fromString, fromStringUnchecked)
+module Hex exposing (fromBytes, toBytes, toBytesUnchecked)
 
 {-| Convert between `Bytes` and hexadecimal strings.
 
-@docs toString, fromString, fromStringUnchecked
+@docs fromBytes, toBytes, toBytesUnchecked
 
 -}
 
@@ -21,12 +21,12 @@ import Bytes.Encode as Encode
     import Bytes.Encode as Encode
 
     Encode.encode (Encode.unsignedInt8 255)
-        |> toString
+        |> fromBytes
     --> "ff"
 
 -}
-toString : Bytes -> String
-toString bytes =
+fromBytes : Bytes -> String
+fromBytes bytes =
     let
         width =
             Bytes.width bytes
@@ -37,7 +37,7 @@ toString bytes =
         remainder =
             modBy 4 width
     in
-    Decode.decode (toStringLoop fullWords remainder) bytes
+    Decode.decode (fromBytesLoop fullWords remainder) bytes
         |> Maybe.withDefault ""
 
 
@@ -45,8 +45,8 @@ type alias EncState =
     { words : Int, rem : Int, acc : String }
 
 
-toStringLoop : Int -> Int -> Decoder String
-toStringLoop fullWords remainder =
+fromBytesLoop : Int -> Int -> Decoder String
+fromBytesLoop fullWords remainder =
     Decode.loop { words = fullWords, rem = remainder, acc = "" } encStep
 
 
@@ -894,15 +894,15 @@ lookupByte byte =
 odd length or contains non-hex characters. Accepts both uppercase and
 lowercase hex digits.
 
-    fromString "ff"
+    toBytes "ff"
     --> Just <1 byte>
 
-    fromString "zz"
+    toBytes "zz"
     --> Nothing
 
 -}
-fromString : String -> Maybe Bytes
-fromString hex =
+toBytes : String -> Maybe Bytes
+toBytes hex =
     let
         len =
             String.length hex
@@ -1027,14 +1027,14 @@ hexDigit s =
 
 {-| Parse a lowercase hex string into `Bytes`. Does not validate the input:
 assumes even length and only lowercase hex characters (0-9, a-f).
-About 20% faster than `fromString`.
+About 20% faster than `toBytes`.
 
-    fromStringUnchecked "ff"
+    toBytesUnchecked "ff"
     --> <1 byte>
 
 -}
-fromStringUnchecked : String -> Bytes
-fromStringUnchecked hex =
+toBytesUnchecked : String -> Bytes
+toBytesUnchecked hex =
     let
         len =
             String.length hex

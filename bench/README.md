@@ -14,14 +14,14 @@ Using [elm-bench](https://github.com/miniBill/elm-bench):
 ```sh
 cd bench
 
-# Compare toString
-elm-bench -f Bench.v1_toStr_1024 -f Bench.v2_toStr_1024 "()"
+# Compare fromBytes
+elm-bench -f Bench.v1_fromBytes_1024 -f Bench.v2_fromBytes_1024 "()"
 
-# Compare fromString
-elm-bench -f Bench.v1_fromStr_1024 -f Bench.v2_fromStr_1024 "()"
+# Compare toBytes
+elm-bench -f Bench.v1_toBytes_1024 -f Bench.v2_toBytes_1024 "()"
 
-# Compare fromStringUnchecked
-elm-bench -f Bench.v1_fromStrU_1024 -f Bench.v2_fromStrU_1024 "()"
+# Compare toBytesUnchecked
+elm-bench -f Bench.v1_toBytesU_1024 -f Bench.v2_toBytesU_1024 "()"
 ```
 
 ## Correctness checks

@@ -11,9 +11,9 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "Hex"
-        [ toStringTests
-        , fromStringTests
-        , fromStringUncheckedTests
+        [ fromBytesTests
+        , toBytesTests
+        , toBytesUncheckedTests
         , roundTripTests
         ]
 
@@ -22,36 +22,36 @@ suite =
 -- toString
 
 
-toStringTests : Test
-toStringTests =
-    describe "toString"
+fromBytesTests : Test
+fromBytesTests =
+    describe "fromBytes"
         [ test "empty bytes" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.sequence []))
+                Hex.fromBytes (Encode.encode (Encode.sequence []))
                     |> Expect.equal ""
         , test "single byte 0x00" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.unsignedInt8 0))
+                Hex.fromBytes (Encode.encode (Encode.unsignedInt8 0))
                     |> Expect.equal "00"
         , test "single byte 0xff" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.unsignedInt8 255))
+                Hex.fromBytes (Encode.encode (Encode.unsignedInt8 255))
                     |> Expect.equal "ff"
         , test "single byte 0x0a" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.unsignedInt8 10))
+                Hex.fromBytes (Encode.encode (Encode.unsignedInt8 10))
                     |> Expect.equal "0a"
         , test "two bytes" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.sequence [ Encode.unsignedInt8 0xDE, Encode.unsignedInt8 0xAD ]))
+                Hex.fromBytes (Encode.encode (Encode.sequence [ Encode.unsignedInt8 0xDE, Encode.unsignedInt8 0xAD ]))
                     |> Expect.equal "dead"
         , test "four bytes (one word)" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.unsignedInt32 Bytes.BE 0xDEADBEEF))
+                Hex.fromBytes (Encode.encode (Encode.unsignedInt32 Bytes.BE 0xDEADBEEF))
                     |> Expect.equal "deadbeef"
         , test "output is lowercase" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.unsignedInt32 Bytes.BE 0xABCDEF01))
+                Hex.fromBytes (Encode.encode (Encode.unsignedInt32 Bytes.BE 0xABCDEF01))
                     |> Expect.equal "abcdef01"
         , test "all byte values 0-255" <|
             \_ ->
@@ -60,7 +60,7 @@ toStringTests =
                         Encode.encode (Encode.sequence (List.map (\i -> Encode.unsignedInt8 i) (List.range 0 255)))
 
                     result =
-                        Hex.toString bytes
+                        Hex.fromBytes bytes
 
                     expected =
                         String.join "" (List.map byteToHex (List.range 0 255))
@@ -68,7 +68,7 @@ toStringTests =
                 Expect.equal expected result
         , test "5 bytes (remainder after word)" <|
             \_ ->
-                Hex.toString (Encode.encode (Encode.sequence (List.map Encode.unsignedInt8 [ 0x01, 0x02, 0x03, 0x04, 0x05 ])))
+                Hex.fromBytes (Encode.encode (Encode.sequence (List.map Encode.unsignedInt8 [ 0x01, 0x02, 0x03, 0x04, 0x05 ])))
                     |> Expect.equal "0102030405"
         , test "large input (1024 bytes)" <|
             \_ ->
@@ -77,7 +77,7 @@ toStringTests =
                         makeBytes 1024
 
                     result =
-                        Hex.toString bytes
+                        Hex.fromBytes bytes
                 in
                 Expect.equal (1024 * 2) (String.length result)
         ]
@@ -87,85 +87,85 @@ toStringTests =
 -- fromString
 
 
-fromStringTests : Test
-fromStringTests =
-    describe "fromString"
+toBytesTests : Test
+toBytesTests =
+    describe "toBytes"
         [ test "empty string" <|
             \_ ->
-                Hex.fromString ""
+                Hex.toBytes ""
                     |> Maybe.map Bytes.width
                     |> Expect.equal (Just 0)
         , test "lowercase ff" <|
             \_ ->
-                Hex.fromString "ff"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "ff"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "ff")
         , test "uppercase FF" <|
             \_ ->
-                Hex.fromString "FF"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "FF"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "ff")
         , test "mixed case DeAdBeEf" <|
             \_ ->
-                Hex.fromString "DeAdBeEf"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "DeAdBeEf"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "deadbeef")
         , test "all digits 0-9" <|
             \_ ->
-                Hex.fromString "0123456789"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "0123456789"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "0123456789")
         , test "all hex letters a-f" <|
             \_ ->
-                Hex.fromString "aabbccddeeff"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "aabbccddeeff"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "aabbccddeeff")
         , test "all hex letters A-F" <|
             \_ ->
-                Hex.fromString "AABBCCDDEEFF"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "AABBCCDDEEFF"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "aabbccddeeff")
         , test "odd length returns Nothing" <|
             \_ ->
-                Hex.fromString "abc"
+                Hex.toBytes "abc"
                     |> Expect.equal Nothing
         , test "invalid char 'g' returns Nothing" <|
             \_ ->
-                Hex.fromString "0g"
+                Hex.toBytes "0g"
                     |> Expect.equal Nothing
         , test "invalid char 'z' returns Nothing" <|
             \_ ->
-                Hex.fromString "zz"
+                Hex.toBytes "zz"
                     |> Expect.equal Nothing
         , test "space returns Nothing" <|
             \_ ->
-                Hex.fromString "0 "
+                Hex.toBytes "0 "
                     |> Expect.equal Nothing
         , test "@ returns Nothing" <|
             \_ ->
-                Hex.fromString "@0"
+                Hex.toBytes "@0"
                     |> Expect.equal Nothing
         , test "backtick returns Nothing" <|
             \_ ->
-                Hex.fromString "`0"
+                Hex.toBytes "`0"
                     |> Expect.equal Nothing
         , test "G returns Nothing" <|
             \_ ->
-                Hex.fromString "GG"
+                Hex.toBytes "GG"
                     |> Expect.equal Nothing
         , test "single byte 00" <|
             \_ ->
-                Hex.fromString "00"
-                    |> Maybe.map Hex.toString
+                Hex.toBytes "00"
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just "00")
         , test "large input round-trips" <|
             \_ ->
                 let
                     hex =
-                        Hex.toString (makeBytes 512)
+                        Hex.fromBytes (makeBytes 512)
                 in
-                Hex.fromString hex
-                    |> Maybe.map Hex.toString
+                Hex.toBytes hex
+                    |> Maybe.map Hex.fromBytes
                     |> Expect.equal (Just hex)
         ]
 
@@ -174,37 +174,37 @@ fromStringTests =
 -- fromStringUnchecked
 
 
-fromStringUncheckedTests : Test
-fromStringUncheckedTests =
-    describe "fromStringUnchecked"
+toBytesUncheckedTests : Test
+toBytesUncheckedTests =
+    describe "toBytesUnchecked"
         [ test "empty string" <|
             \_ ->
-                Hex.fromStringUnchecked ""
+                Hex.toBytesUnchecked ""
                     |> Bytes.width
                     |> Expect.equal 0
         , test "lowercase ff" <|
             \_ ->
-                Hex.fromStringUnchecked "ff"
-                    |> Hex.toString
+                Hex.toBytesUnchecked "ff"
+                    |> Hex.fromBytes
                     |> Expect.equal "ff"
         , test "deadbeef" <|
             \_ ->
-                Hex.fromStringUnchecked "deadbeef"
-                    |> Hex.toString
+                Hex.toBytesUnchecked "deadbeef"
+                    |> Hex.fromBytes
                     |> Expect.equal "deadbeef"
         , test "all zeros" <|
             \_ ->
-                Hex.fromStringUnchecked "0000000000"
-                    |> Hex.toString
+                Hex.toBytesUnchecked "0000000000"
+                    |> Hex.fromBytes
                     |> Expect.equal "0000000000"
         , test "large input round-trips" <|
             \_ ->
                 let
                     hex =
-                        Hex.toString (makeBytes 512)
+                        Hex.fromBytes (makeBytes 512)
                 in
-                Hex.fromStringUnchecked hex
-                    |> Hex.toString
+                Hex.toBytesUnchecked hex
+                    |> Hex.fromBytes
                     |> Expect.equal hex
         ]
 
@@ -216,7 +216,7 @@ fromStringUncheckedTests =
 roundTripTests : Test
 roundTripTests =
     describe "round-trip"
-        [ test "toString >> fromString for various sizes" <|
+        [ test "fromBytes >> toBytes for various sizes" <|
             \_ ->
                 let
                     sizes =
@@ -230,26 +230,26 @@ roundTripTests =
                                         makeBytes n
 
                                     hex =
-                                        Hex.toString bytes
+                                        Hex.fromBytes bytes
                                 in
-                                Hex.fromString hex
-                                    |> Maybe.map Hex.toString
+                                Hex.toBytes hex
+                                    |> Maybe.map Hex.fromBytes
                                     |> (==) (Just hex)
                             )
                             sizes
                 in
                 Expect.equal True allPass
-        , test "fromString >> toString >> fromString is stable" <|
+        , test "toBytes >> fromBytes >> toBytes is stable" <|
             \_ ->
                 let
                     hex =
                         "deadbeef0123456789abcdef"
 
                     result =
-                        Hex.fromString hex
-                            |> Maybe.map Hex.toString
-                            |> Maybe.andThen Hex.fromString
-                            |> Maybe.map Hex.toString
+                        Hex.toBytes hex
+                            |> Maybe.map Hex.fromBytes
+                            |> Maybe.andThen Hex.toBytes
+                            |> Maybe.map Hex.fromBytes
                 in
                 Expect.equal (Just hex) result
         ]
