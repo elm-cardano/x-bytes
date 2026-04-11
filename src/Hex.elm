@@ -13,7 +13,7 @@ import Bytes.Encode as Encode
 
 
 
--- ENCODE
+-- FROM BYTES
 
 
 {-| Convert `Bytes` to a lowercase hex string.
@@ -887,7 +887,7 @@ lookupByte byte =
 
 
 
--- DECODE
+-- TO BYTES
 
 
 {-| Parse a hex string into `Bytes`. Returns `Nothing` if the string has
@@ -1022,7 +1022,7 @@ hexDigit s =
 
 
 
--- DECODE (UNCHECKED)
+-- TO BYTES (UNCHECKED)
 
 
 {-| Parse a lowercase hex string into `Bytes`. Does not validate the input:
