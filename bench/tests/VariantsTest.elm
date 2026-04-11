@@ -1,6 +1,6 @@
 module VariantsTest exposing (suite)
 
-{-| Verify that V2 produces the same output as V1 (Hex).
+{-| Verify that V2 produces the same output as V1 (Hex and XBytes).
 -}
 
 import Bytes exposing (Bytes)
@@ -9,12 +9,15 @@ import Expect
 import Hex
 import Hex.V2
 import Test exposing (..)
+import XBytes
+import XBytes.V2
 
 
 suite : Test
 suite =
     describe "V2 equivalence with V1"
-        [ describe "fromBytes"
+        [ xbytesTests
+        , describe "fromBytes"
             (List.map
                 (\n ->
                     test (String.fromInt n ++ "B") <|
@@ -44,6 +47,37 @@ suite =
                                 |> Expect.equal (Hex.fromBytes (Hex.toBytesUnchecked hex))
                 )
                 lowercaseHexStrings
+            )
+        ]
+
+
+
+xbytesTests : Test
+xbytesTests =
+    describe "XBytes V2"
+        [ describe "fromHex"
+            (List.map
+                (\hex ->
+                    test (labelFor hex) <|
+                        \_ ->
+                            XBytes.V2.fromHex hex
+                                |> Expect.equal (XBytes.fromHex hex)
+                )
+                testHexStrings
+            )
+        , describe "concat"
+            (List.map
+                (\n ->
+                    test (String.fromInt n ++ " items") <|
+                        \_ ->
+                            let
+                                list =
+                                    List.map (\i -> XBytes.fromBytes (makeBytes i)) (List.range 0 n)
+                            in
+                            XBytes.V2.concat list
+                                |> Expect.equal (XBytes.concat list)
+                )
+                [ 0, 1, 5, 20, 100 ]
             )
         ]
 

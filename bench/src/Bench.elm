@@ -11,6 +11,10 @@ module Bench exposing
     , v1_toBytes_256
     , v1_toBytes_32
     , v1_toBytes_8
+    , v1_xb_concat_100
+    , v1_xb_fromHex_1024
+    , v1_xb_fromHex_256
+    , v1_xb_fromHex_32
     , v2_fromBytes_1024
     , v2_fromBytes_256
     , v2_fromBytes_32
@@ -20,6 +24,10 @@ module Bench exposing
     , v2_toBytes_1024
     , v2_toBytes_256
     , v2_toBytes_32
+    , v2_xb_concat_100
+    , v2_xb_fromHex_1024
+    , v2_xb_fromHex_256
+    , v2_xb_fromHex_32
     )
 
 {-| Benchmark functions for Hex encoding/decoding.
@@ -48,6 +56,8 @@ import Bytes exposing (Bytes)
 import Bytes.Encode as Encode
 import Hex
 import Hex.V2
+import XBytes exposing (XBytes)
+import XBytes.V2
 
 
 
@@ -218,3 +228,60 @@ v2_toBytesU_256 () =
 v2_toBytesU_1024 : () -> Bytes
 v2_toBytesU_1024 () =
     Hex.V2.toBytesUnchecked hex1024
+
+
+
+-- XBytes test data
+
+
+xbList100 : List XBytes
+xbList100 =
+    List.repeat 100 (XBytes.fromBytes bytes32)
+
+
+
+-- V1 XBytes benchmarks (current implementation)
+
+
+v1_xb_fromHex_32 : () -> Maybe XBytes
+v1_xb_fromHex_32 () =
+    XBytes.fromHex hex32
+
+
+v1_xb_fromHex_256 : () -> Maybe XBytes
+v1_xb_fromHex_256 () =
+    XBytes.fromHex hex256
+
+
+v1_xb_fromHex_1024 : () -> Maybe XBytes
+v1_xb_fromHex_1024 () =
+    XBytes.fromHex hex1024
+
+
+v1_xb_concat_100 : () -> XBytes
+v1_xb_concat_100 () =
+    XBytes.concat xbList100
+
+
+
+-- V2 XBytes benchmarks (optimized candidates)
+
+
+v2_xb_fromHex_32 : () -> Maybe XBytes
+v2_xb_fromHex_32 () =
+    XBytes.V2.fromHex hex32
+
+
+v2_xb_fromHex_256 : () -> Maybe XBytes
+v2_xb_fromHex_256 () =
+    XBytes.V2.fromHex hex256
+
+
+v2_xb_fromHex_1024 : () -> Maybe XBytes
+v2_xb_fromHex_1024 () =
+    XBytes.V2.fromHex hex1024
+
+
+v2_xb_concat_100 : () -> XBytes
+v2_xb_concat_100 () =
+    XBytes.V2.concat xbList100
