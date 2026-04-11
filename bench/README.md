@@ -9,7 +9,7 @@ Benchmarking infrastructure for Hex encoding/decoding implementations.
 
 ## Running benchmarks
 
-Using [elm-bench](https://github.com/miniBill/elm-bench):
+Using [elm-bench](https://github.com/elm-menagerie/elm-bench):
 
 ```sh
 cd bench
