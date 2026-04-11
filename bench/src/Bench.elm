@@ -79,7 +79,7 @@ hex1024 =
 
 
 
--- toString benchmarks
+-- V1 benchmarks (final optimized)
 
 
 v1_toStr_32 : () -> String
@@ -97,25 +97,6 @@ v1_toStr_1024 () =
     Hex.toString bytes1024
 
 
-v2_toStr_32 : () -> String
-v2_toStr_32 () =
-    Hex.V2.toString bytes32
-
-
-v2_toStr_256 : () -> String
-v2_toStr_256 () =
-    Hex.V2.toString bytes256
-
-
-v2_toStr_1024 : () -> String
-v2_toStr_1024 () =
-    Hex.V2.toString bytes1024
-
-
-
--- fromString benchmarks
-
-
 v1_fromStr_32 : () -> Maybe Bytes
 v1_fromStr_32 () =
     Hex.fromString hex32
@@ -129,6 +110,25 @@ v1_fromStr_256 () =
 v1_fromStr_1024 : () -> Maybe Bytes
 v1_fromStr_1024 () =
     Hex.fromString hex1024
+
+
+
+-- V2 benchmarks (experimental)
+
+
+v2_toStr_32 : () -> String
+v2_toStr_32 () =
+    Hex.V2.toString bytes32
+
+
+v2_toStr_256 : () -> String
+v2_toStr_256 () =
+    Hex.V2.toString bytes256
+
+
+v2_toStr_1024 : () -> String
+v2_toStr_1024 () =
+    Hex.V2.toString bytes1024
 
 
 v2_fromStr_32 : () -> Maybe Bytes
