@@ -29,7 +29,7 @@ XBytes.fromBytes bytes     -- XBytes
 XBytes.toBytes xb          -- Bytes
 ```
 
-Plus common operations: `append`, `concat`, `slice`, `reverse`, `left`, `right`, `dropLeft`, `dropRight`, `join`, `width`, and JSON / `Bytes.Encode` / `Bytes.Decode` interop. See the [module docs](https://package.elm-lang.org/packages/elm-cardano/x-bytes/1.0.0/) for the full API.
+Plus common operations: `append`, `concat`, `slice`, `reverse`, `left`, `right`, `dropLeft`, `dropRight`, `join`, `width`, and JSON / `Bytes.Encode` / `Bytes.Decode` interop. See the [module docs](https://package.elm-lang.org/packages/elm-cardano/x-bytes/1.1.0) for the full API.
 
 ## Install
 
