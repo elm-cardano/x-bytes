@@ -1,12 +1,13 @@
-module Hex exposing (fromBytes, toBytes, toBytesUnchecked)
+module Hex exposing (fromBytes, fromWord32, toBytes, toBytesUnchecked)
 
 {-| Convert between `Bytes` and hexadecimal strings.
 
   - [`fromBytes`](#fromBytes) encodes `Bytes` into a lowercase hex `String`.
+  - [`fromWord32`](#fromWord32) encodes a 32-bit `Int` into a lowercase 2-char hex `String`.
   - [`toBytes`](#toBytes) decodes a hex `String` (mixed-case) into `Bytes`, with validation.
   - [`toBytesUnchecked`](#toBytesUnchecked) decodes a lowercase hex `String` into `Bytes`, without validation.
 
-@docs fromBytes, toBytes, toBytesUnchecked
+@docs fromBytes, fromWord32, toBytes, toBytesUnchecked
 
 -}
 
@@ -83,11 +84,11 @@ encStep state =
                     , rem = state.rem
                     , acc =
                         state.acc
-                            ++ word32ToHex w1
-                            ++ word32ToHex w2
-                            ++ word32ToHex w3
-                            ++ word32ToHex w4
-                            ++ word32ToHex w5
+                            ++ fromWord32 w1
+                            ++ fromWord32 w2
+                            ++ fromWord32 w3
+                            ++ fromWord32 w4
+                            ++ fromWord32 w5
                     }
             )
             (Decode.unsignedInt32 BE)
@@ -102,7 +103,7 @@ encStep state =
                 Decode.Loop
                     { words = state.words - 2
                     , rem = state.rem
-                    , acc = state.acc ++ word32ToHex w1 ++ word32ToHex w2
+                    , acc = state.acc ++ fromWord32 w1 ++ fromWord32 w2
                     }
             )
             (Decode.unsignedInt32 BE)
@@ -112,7 +113,7 @@ encStep state =
         Decode.unsignedInt32 BE
             |> Decode.map
                 (\word ->
-                    Decode.Loop { words = 0, rem = state.rem, acc = state.acc ++ word32ToHex word }
+                    Decode.Loop { words = 0, rem = state.rem, acc = state.acc ++ fromWord32 word }
                 )
 
     else if state.rem > 0 then
@@ -130,8 +131,8 @@ encStep state =
 accumulator list 4x shorter than pushing individual 2-char strings,
 which matters because List.reverse + String.concat scale with list length.
 -}
-word32ToHex : Int -> String
-word32ToHex word =
+fromWord32 : Int -> String
+fromWord32 word =
     lookupByte (Bitwise.and 0xFF (Bitwise.shiftRightZfBy 24 word))
         ++ lookupByte (Bitwise.and 0xFF (Bitwise.shiftRightZfBy 16 word))
         ++ lookupByte (Bitwise.and 0xFF (Bitwise.shiftRightZfBy 8 word))
