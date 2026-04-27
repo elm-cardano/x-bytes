@@ -218,7 +218,7 @@ reverseHexPairs hex remaining acc =
     else
         reverseHexPairs hex
             (remaining - 2)
-            (acc ++ String.slice (remaining - 2) remaining hex)
+            (acc ++ String.slice (remaining - 2) remaining hex ++ "")
 
 
 {-| Append two byte sequences.
@@ -229,7 +229,7 @@ reverseHexPairs hex remaining acc =
 -}
 append : XBytes -> XBytes -> XBytes
 append (XBytes a) (XBytes b) =
-    XBytes (a ++ b)
+    XBytes (a ++ b ++ "")
 
 
 {-| Concatenate a list of byte sequences.
@@ -243,7 +243,7 @@ to avoid allocating an intermediate `List String`. Benchmarked 63% faster.
 -}
 concat : List XBytes -> XBytes
 concat list =
-    XBytes (List.foldl (\(XBytes hex) acc -> acc ++ hex) "" list)
+    XBytes (List.foldl (\(XBytes hex) acc -> acc ++ hex ++ "") "" list)
 
 
 {-| Join a list of byte sequences with a separator.

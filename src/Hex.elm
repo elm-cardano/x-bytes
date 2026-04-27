@@ -89,6 +89,7 @@ encStep state =
                             ++ fromWord32 w3
                             ++ fromWord32 w4
                             ++ fromWord32 w5
+                            ++ ""
                     }
             )
             (Decode.unsignedInt32 BE)
@@ -103,7 +104,7 @@ encStep state =
                 Decode.Loop
                     { words = state.words - 2
                     , rem = state.rem
-                    , acc = state.acc ++ fromWord32 w1 ++ fromWord32 w2
+                    , acc = state.acc ++ fromWord32 w1 ++ fromWord32 w2 ++ ""
                     }
             )
             (Decode.unsignedInt32 BE)
@@ -113,14 +114,14 @@ encStep state =
         Decode.unsignedInt32 BE
             |> Decode.map
                 (\word ->
-                    Decode.Loop { words = 0, rem = state.rem, acc = state.acc ++ fromWord32 word }
+                    Decode.Loop { words = 0, rem = state.rem, acc = state.acc ++ fromWord32 word ++ "" }
                 )
 
     else if state.rem > 0 then
         Decode.unsignedInt8
             |> Decode.map
                 (\byte ->
-                    Decode.Loop { words = 0, rem = state.rem - 1, acc = state.acc ++ lookupByte byte }
+                    Decode.Loop { words = 0, rem = state.rem - 1, acc = state.acc ++ lookupByte byte ++ "" }
                 )
 
     else
@@ -137,6 +138,7 @@ fromWord32 word =
         ++ lookupByte (Bitwise.and 0xFF (Bitwise.shiftRightZfBy 16 word))
         ++ lookupByte (Bitwise.and 0xFF (Bitwise.shiftRightZfBy 8 word))
         ++ lookupByte (Bitwise.and 0xFF word)
+        ++ ""
 
 
 
