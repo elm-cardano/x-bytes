@@ -51,7 +51,6 @@ suite =
         ]
 
 
-
 xbytesTests : Test
 xbytesTests =
     describe "XBytes V2"

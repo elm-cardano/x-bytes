@@ -44,17 +44,23 @@ V2 is a copy of V1 (baseline for comparison).
 
 ## fromBytes benchmarks
 
-    elm - bench -f Bench.v1_fromBytes_1024 -f Bench.v2_fromBytes_1024 "()"
+```sh
+elm-bench -f Bench.v1_fromBytes_1024 -f Bench.v2_fromBytes_1024 "()"
+```
 
 
 ## toBytes benchmarks
 
-    elm - bench -f Bench.v1_toBytes_1024 -f Bench.v2_toBytes_1024 "()"
+```sh
+elm-bench -f Bench.v1_toBytes_1024 -f Bench.v2_toBytes_1024 "()"
+```
 
 
 ## toBytesUnchecked benchmarks
 
-    elm - bench -f Bench.v1_toBytesU_1024 -f Bench.v2_toBytesU_1024 "()"
+```sh
+elm-bench -f Bench.v1_toBytesU_1024 -f Bench.v2_toBytesU_1024 "()"
+```
 
 -}
 
